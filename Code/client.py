@@ -1,39 +1,34 @@
 import socket
-import threading
-import sys
+import time
 
-#Wait for incoming data from server
-#.decode is used to turn the message in bytes to a string
-def receive(socket, signal):
-    while signal:
-        try:
-            data = socket.recv(32)
-            print(str(data.decode("utf-8")) + "Said Another person")
-        except:
-            print("You have been disconnected from the server")
-            signal = False
-            break
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+host ="localhost"
+checkingforerror = True
+while checkingforerror == True:
+    try:
+        print("Hello!")
+        port = int(input("What your 5 number pin?"))
+        s.connect((host,port))
+        checkingforerror = False
+    except:
+        print("Invalid try again.")
+def WaitingLobby():
+    gamestarted = False
+    while gamestarted == False:
+        print("Waiting")
+        time.sleep(5)
 
+def sendname(name):
+   s.send(name.encode())
+   data = ''
+   data = s.recv(1024).decode()
+   print (data)
+   WaitingLobby()
 
-#Get host and port
-host = "localhost"
-port = int(input("Port?"))
+namenotsend = True
+while namenotsend == True:
+    r = input('enter name please')
+    sendname(r)
+    namenotsend = False
 
-#Attempt connection to server
-try:
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.connect((host, port))
-except:
-    print("Could not make a connection to the server")
-    input("Press enter to quit")
-    sys.exit(0)
-
-#Create new thread to wait for data
-receiveThread = threading.Thread(target = receive, args = (sock, True))
-receiveThread.start()
-
-#Send data to server
-#str.encode is used to turn the string message into bytes so it can be sent across the network
-while True:
-    message = input()
-    sock.sendall(str.encode(message))
+s.close ()

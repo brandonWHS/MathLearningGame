@@ -1,71 +1,96 @@
 import socket
 import threading
 import random
-
-#Variables for holding information about connections
-connections = []
-total_connections = 0
-
-#Client class, new instance created for each connected client
-#Each instance has the socket and address that is associated with items
-#Along with an assigned ID and a name chosen by the client
-class Client(threading.Thread):
-    def __init__(self, socket, address, id, name, signal):
-        threading.Thread.__init__(self)
-        self.socket = socket
-        self.address = address
-        self.id = id
+import weakref
+import time
+from threading import *
+print_lock = threading.Lock()
+Players = {}
+players_database = {
+}
+total_players = 0
+serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+host = "localhost"
+servername = str(input("What's Your classroom name?"))
+    
+port = random.randint(10000,65535)
+print (host)
+print (port)
+serversocket.bind((host, port))
+##SERVER STARTEDDD++++++++++============
+class Player(Thread):
+    instances = []
+    def __init__(self, name, points,socket, address):
+        Thread.__init__(self)
+        self.__class__.instances.append(weakref.proxy(self))
+        self.id = 1
         self.name = name
-        self.signal = signal
-    
-    def __str__(self):
-        return str(self.id) + " " + str(self.address)
-    
-    #Attempt to get data from client
-    #If unable to, assume client has disconnected and remove him from server data
-    #If able to and we get data back, print it in the server and send it back to every
-    #client aside from the client that has sent it
-    #.decode is used to convert the byte data into a printable string
+        self.points = points
+        self.sock = socket
+        self.addr = address
+        self.start()
+    def renameplayer(self,name):
+        players_database.pop(self.name, None)
+        players_database[name] = [f"{name}",0,self.sock, self.addr]
+        self.name = name
     def run(self):
-        while self.signal:
+        while 1:
+            print(f"Recieved {self.name}")
             try:
-                data = self.socket.recv(32)
-            except:
-                print("Client " + str(self.address) + " has disconnected")
-                self.signal = False
-                connections.remove(self)
-                break
-            if data != "":
-                print("ID " + str(self.id) + ":fff " + str(data.decode("utf-8")))
-                for client in connections:
-                    if client.id != self.id:
-                        client.socket.sendall(data)
+                datafromplayer = self.sock.recv(1024).decode()
+                self.renameplayer(datafromplayer)
+                nameinb = b = self.name.encode('utf-8')
+                servernameinb = b = servername.encode('utf-8')
+                self.sock.send(b'Hello ' + nameinb + b' Your connection has been reconised. You have joined:' + servernameinb)
+            except ConnectionResetError:
+                print(f'{self.name} has disconnected removing him now')
+                self.delete()
+                return
+    def addpoint(self,amount):
+        self.points += amount
+    def removepoints(self, amount):
+        self.points += amount
+    def getlistofplayers(self):
+        for instance in Player.instances:
+            print(instance.name)
 
-#Wait for new connections
-def newConnections(socket):
-    while True:
-        global total_connections
-        sock, address = socket.accept()
-        connections.append(Client(sock, address, total_connections, "Name", True))
-        connections[len(connections) - 1].start()
-        print("New connection at ID " + str(connections[len(connections) - 1]))
-        total_connections += 1
+    def readpoints(self):
+        return self.points
+    def readname(self):
+        return self.name
+    def delete(self):
+        self.renameplayer("deleted")
+        self.name = "deleted"
+    
+def SetPlayersIn():
+    global Players
+    for id, data in players_database.items():
+        Players[id] = Player(data[0], data[1], data[2], data[3])
 
-def main():
-    #Get host and port
-    host = "localhost"
-    port = random.randint(1,5)
-    print("Accepted")
-
-    #Create new server socket
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.bind((host, port))
-    sock.listen(5)
-
-    #Create new thread to wait for connections
-    newConnectionsThread = threading.Thread(target = newConnections, args = (sock,))
-    newConnectionsThread.start()
-    print("Waiting for connection")
-    print(port)
-servername = str(input("What's your classroom name going to be?"))
-main()
+def AddPlayer(playername,points,clientsocket, address):
+    players_database[playername] = [f"{playername}",0,clientsocket, address]
+    SetPlayersIn()
+def CheckForPlayers(randomnum):
+    #I know you need to setup a listener for clients so yuh
+    return
+    
+def GameStart():
+    return
+def WaitingLobby(isgamestarting=False):
+    if isgamestarting == True:
+        GameStart()
+    else:
+        while isgamestarting == False:
+            print("==========Game Lobby=============")
+            print("---- Players")
+            for item in players_database:
+                if item != "deleted" or item != "New":
+                    print(f"- {item}")
+            time.sleep(5)
+serversocket.listen(5)
+print ('server started and listening')
+waiting = threading.Thread(target=WaitingLobby)
+waiting.start()
+while 1:
+    clientsocket, address = serversocket.accept()
+    AddPlayer("New",0,clientsocket, address)
