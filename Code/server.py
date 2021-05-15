@@ -1,5 +1,6 @@
 import socket
 import threading
+import random
 
 #Variables for holding information about connections
 connections = []
@@ -43,8 +44,8 @@ class Client(threading.Thread):
 #Wait for new connections
 def newConnections(socket):
     while True:
-        sock, address = socket.accept()
         global total_connections
+        sock, address = socket.accept()
         connections.append(Client(sock, address, total_connections, "Name", True))
         connections[len(connections) - 1].start()
         print("New connection at ID " + str(connections[len(connections) - 1]))
@@ -53,7 +54,7 @@ def newConnections(socket):
 def main():
     #Get host and port
     host = "localhost"
-    port = 1234
+    port = random.randint(1,5)
     print("Accepted")
 
     #Create new server socket
@@ -65,5 +66,6 @@ def main():
     newConnectionsThread = threading.Thread(target = newConnections, args = (sock,))
     newConnectionsThread.start()
     print("Waiting for connection")
-    
+    print(port)
+servername = str(input("What's your classroom name going to be?"))
 main()
