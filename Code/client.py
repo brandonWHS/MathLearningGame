@@ -17,7 +17,7 @@ def receive(socket, signal):
 
 #Get host and port
 host = "localhost"
-port = 1234
+port = int(input("Port?"))
 
 #Attempt connection to server
 try:
