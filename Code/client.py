@@ -1,8 +1,10 @@
 import socket
 import time
+import tkinter as Tk
+from tkinter.constants import ANCHOR, CENTER
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-host ="localhost"
+host ="192.168.8.30"
 checkingforerror = True
 while checkingforerror == True:
     try:
