@@ -10,6 +10,7 @@ while checkingforerror == True:
     try:
         print("Hello!")
         port = int(input("What your 5 number pin?"))
+        port = self.name.get()
         s.connect((host,port))
         checkingforerror = False
     except:
