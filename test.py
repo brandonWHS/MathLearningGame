@@ -4,6 +4,10 @@ from tkinter import *
 import socket
 import time
 from tkinter.constants import ANCHOR, CENTER
+import threading
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+host ="localhost"
+port = 0
 class WaitingGUI:
     def __init__(self, master):
         self.master = master
@@ -20,11 +24,31 @@ def sendname(name):
     s.send(name.encode())
     data = ''
     data = s.recv(1024).decode()
-    print (data)
-    roooot = Tk()
-    nextlevel = WaitingGUI(roooot)
+    rooooot = Tk()
+    nextlevel = WaitingGUI(rooooot)
     root.mainloop()
-
+   
+class Options_nameGUI:
+    def __init__(self, master):
+        self.master = master
+        master.title("Math Game")
+        master.geometry("597x588")
+        master.configure(background='#8B8378')
+        master.attributes("-fullscreen", True)
+        Label(master, text='Name Selection', bg='#8B8378', font=('helvetica', 30, 'bold')).place(relx=0.5,rely=0.1,anchor=CENTER)
+        Label(master, text='Please Enter your name.', bg='#8B8378', font=('helvetica',18)).place(relx=0.36,rely=0.5,anchor=CENTER)
+        Button(master, text='Join', bg='#CDC0B0', font=('helvetica', 20, 'bold'), command=self.NextMenu).place(relx=0.5,rely=0.56,anchor=CENTER)
+        Button(master, text='Back', bg='#CDC0B0', font=('helvetica', 20, 'bold'), command=self.Quitbtn).place(relx=0.5,rely=0.64,anchor=CENTER)
+        Label(master, text='Version: 1.0 Built by: BrandonWHS', bg='#8B8378', font=('arial', 10, 'bold')).place(relx=0.5,rely=0.15,anchor=CENTER)
+        self.name=Entry(master,font=(10),width=6,)
+        self.name.place(relx=0.497,rely=0.5,anchor=CENTER)
+    def NextMenu(self):
+        #Sending Name
+        #==============================
+        sendname(str(self.name.get()))
+        self.master.destroy()
+    def Quitbtn(self):
+        self.master.destroy()
 class OptionsGUI:
     def __init__(self, master):
         self.master = master
@@ -46,22 +70,31 @@ class OptionsGUI:
             self.errormessage1.place(relx=0.5,rely=0.41,anchor=CENTER)
         else:
             self.errormessage2.place(relx=0.5,rely=0.41,anchor=CENTER)
-        pass
-
+    def Serverport_value(self):
+        userInput = str(self.serverpin.get())
+        return userInput
     def NextMenu(self):
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        host ="192.168.8.30"
-        checkingerrors = True
-        while checkingerrors == True:
-            try:
-                Port = self.serverpin.get()
-                port = int(Port)
-                s.connect((host,port))
-                checkingforerrors = False
-            except:
-                self.ErrorAppeared("pin")
-                return False              
+        checkingforerror = True
+        print("Made it")
+        print("Made it")
+        global port
+        port = self.Serverport_value()
+        print(f"port is: {port}")
+        try:
+            s.connect((host,port))
+        except:
+            self.ErrorAppeared("pin")
+            return
+        print("passed")
+        checkingforerror = False
+        print("Made it")
+        roooot = Tk()
+        nextlevel = Options_nameGUI(roooot)
         self.master.destroy()
+        print("Made it")
+        root.mainloop()
+        print("Made it")
+        
     def Quitbtn(self):
         self.master.destroy()
 class StartGUI:

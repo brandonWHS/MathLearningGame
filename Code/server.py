@@ -17,7 +17,7 @@ lobby_gui = ""
 endserver = False
 total_players = 0
 serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-host = "192.168.8.30"
+host = "localhost"
 LOH = ""
 
 class LobbyGUI:
@@ -129,6 +129,7 @@ class Player(Thread):
         players_database[name] = [f"{name}",0,self.sock, self.addr]
         self.name = name
     def run(self):
+        global endserver
         while endserver == False:
             print(f"Recieved {self.name}")
             try:
@@ -137,7 +138,6 @@ class Player(Thread):
                 nameinb = b = self.name.encode('utf-8')
                 servernameinb = b = servername.encode('utf-8')
                 self.sock.send(b'Hello ' + nameinb + b' Your connection has been reconised. You have joined:' + servernameinb)
-                endserver = True
             except ConnectionResetError:
                 print(f'{self.name} has disconnected removing him now')
                 self.delete()
