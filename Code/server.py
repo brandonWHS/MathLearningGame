@@ -17,7 +17,7 @@ lobby_gui = ""
 endserver = False
 total_players = 0
 serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-host = "localhost"
+host = "192.168.207.74"
 LOH = ""
 
 class LobbyGUI:

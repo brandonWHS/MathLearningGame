@@ -2,7 +2,7 @@ import socket
 import time
  
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-host ="localhost"
+host ="192.168.207.74"
 checkingforerror = True
 while checkingforerror == True:
     try:
